@@ -11,7 +11,7 @@ class ServerManager(Command):
     name = "<@!737078359590437026>"
 
     usage = "$name$ server [start/stop]"
-    server_address = 'localhost'
+    server_address = 'mc.alex-xu.site'
     processing_stop = False
 
     async def on_active(self, args: List[int], message: Message, bot: Client):
@@ -36,7 +36,7 @@ class ServerManager(Command):
                     ['server', 'run'],
                     ['launch'], ['run'], ['start'], ['play']
             ):
-                state = await fetch('http://localhost:2000/server/status')
+                state = await fetch(API_SERVER+'/server/status')
                 if state == "RUNNING":
                     await message.channel.send(
                         embed=Embed(
@@ -69,12 +69,12 @@ class ServerManager(Command):
                             colour=0x00ff00
                         )
                     )
-                    await fetch("http://localhost:2000/server/launch")
+                    await fetch(API_SERVER+"/server/launch")
                     print("Done")
                     return 0
 
             elif args in (['status'], ['state']):
-                result = await fetch("http://localhost:2000/server/status")
+                result = await fetch(API_SERVER+"/server/status")
                 if result == 'RUNNING':
                     msg = Embed(
                         description="**Server is running  :white_check_mark:**",
@@ -111,18 +111,18 @@ class ServerManager(Command):
             ):
                 try:
                     s = socket()
-                    s.settimeout(1)
+                    s.settimeout(2)
                     s.connect((self.server_address, 25575))
                     s.close()
-                    await message.channel.send(
-                        embed=Embed(
-                            title=":warning: Server will shutdown in 15 secnods",
-                            colour=0xfff300
-                        )
-                    )
                     self.processing_stop = True
                     with MCRcon(self.server_address, PASSWORD) as rcon:
                         rcon.connect()
+                        await message.channel.send(
+                            embed=Embed(
+                                title=":warning: Server will shutdown in 15 secnods",
+                                colour=0xfff300
+                            )
+                        )
                         await rcon_message(rcon, [
                             {"text": "Server will stop in", "color": "gold"},
                             {"text": " 15 ", "color": "red"},
@@ -140,12 +140,10 @@ class ServerManager(Command):
                         await rcon_message(rcon, [
                             {"text": "Stopping Server...", "color": "gold"}
                         ])
-                    self.processing_stop = False
-
-
-                except:
-                    pass
-                state = await fetch('http://localhost:2000/server/status')
+                except Exception as e:
+                    print("Couldn't connect to server", e)
+                self.processing_stop = False
+                state = await fetch(API_SERVER+'/server/status')
                 if state == "STOPPING":
                     await message.channel.send(
                         embed=Embed(

@@ -28,6 +28,8 @@ DISAGREES = [
 
 PASSWORD = 'NONE'
 
+API_SERVER = 'http://www.alex-xu.site:2000/'
+
 async def rcon_message(rcon, msg, sound=True):
     rcon.command('tellraw @a ' + str(msg).replace("'", '"'))
     if sound:
