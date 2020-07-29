@@ -1,9 +1,11 @@
+import time
 from shlex import split as splitargs
 from typing import List
 
 import aiohttp
 import async_timeout
 from discord import Message, Client
+from asyncio import sleep as delay
 
 
 ALL_USERS = 0
@@ -23,6 +25,21 @@ DISAGREES = [
     "no", "dont", "don't", "do not",
     "nope", "nop", "n"
 ]
+
+PASSWORD = 'NONE'
+
+async def rcon_message(rcon, msg, sound=True):
+    rcon.command('tellraw @a ' + str(msg).replace("'", '"'))
+    if sound:
+        rcon.command('execute @a ~ ~ ~ playsound minecraft:block.lever.click master @s ~ ~ ~ 2 2')
+
+
+async def rcon_title(rcon, msg, detail):
+    rcon.command('title @a subtitle ' + str(detail).replace("'", '"'))
+    rcon.command('title @a title ' + str(msg).replace("'", '"'))
+    rcon.command('execute @a ~ ~ ~ playsound minecraft:block.note.bell master @s ~ ~ ~ 2 0.9')
+    await delay(0.15)
+    rcon.command('execute @a ~ ~ ~ playsound minecraft:block.note.bell master @s ~ ~ ~ 2 0.7')
 
 
 def at(author):

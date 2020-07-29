@@ -71,7 +71,7 @@ class MyClient(Client):
                 except Exception as e:
                     result = 1
                 if result:
-                    possible_request = difflib.get_close_matches(msg.content, self.succeed_history)
+                    possible_request = difflib.get_close_matches(msg.content, self.succeed_history, cutoff=0.95)
                     if command.allow_advise and possible_request:
                         on_mistake_data = (msg.author, possible_request[0])
                 else:
